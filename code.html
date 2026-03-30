@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fridge Hero</title>
+  </head>
+  <body>
+    <style>
+      :root {
+        --bg1: #0b1020;
+        --bg2: #101a3a;
+        --card: rgba(255, 255, 255, 0.08);
+        --card-border: rgba(255, 255, 255, 0.18);
+        --text: rgba(255, 255, 255, 0.92);
+        --muted: rgba(255, 255, 255, 0.7);
+        --accent1: #7c3aed;
+        --accent2: #22c55e;
+        --danger: #fb7185;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+        color: var(--text);
+        background: radial-gradient(1200px 600px at 20% 10%, rgba(124, 58, 237, 0.35), transparent 55%),
+          radial-gradient(900px 500px at 90% 30%, rgba(34, 197, 94, 0.25), transparent 55%),
+          linear-gradient(180deg, var(--bg1), var(--bg2));
+        overflow-x: hidden;
+      }
+
+      .bg-blobs {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+      }
+
+      .blob {
+        position: absolute;
+        width: 420px;
+        height: 420px;
+        border-radius: 50%;
+        filter: blur(42px);
+        opacity: 0.55;
+        animation: floaty 10s ease-in-out infinite;
+      }
+
+      .blob.one {
+        left: -140px;
+        top: -160px;
+        background: radial-gradient(circle at 30% 30%, rgba(124, 58, 237, 0.95), rgba(124, 58, 237, 0.15));
+      }
+
+      .blob.two {
+        right: -160px;
+        top: 60px;
+        background: radial-gradient(circle at 30% 30%, rgba(34, 197, 94, 0.85), rgba(34, 197, 94, 0.15));
+        animation-duration: 12s;
+      }
+
+      .blob.three {
+        left: 10%;
+        bottom: -220px;
+        background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0.12));
+        animation-duration: 14s;
+      }
+
+      @keyframes floaty {
+        0% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+        50% {
+          transform: translate3d(0, 18px, 0) scale(1.03);
+        }
+        100% {
+          transform: translate3d(0, 0, 0) scale(1);
+        }
+      }
+
+      .wrap {
+        max-width: 980px;
+        margin: 48px auto;
+        padding: 0 18px;
+      }
+
+      .card {
+        background: var(--card);
+        border: 1px solid var(--card-border);
+        border-radius: 18px;
+        backdrop-filter: blur(14px);
+        box-shadow: 0 30px 90px rgba(0, 0, 0, 0.35);
+        padding: 22px;
+        animation: cardIn 520ms cubic-bezier(0.2, 0.9, 0.2, 1) both;
+      }
+
+      @keyframes cardIn {
+        from {
+          opacity: 0;
+          transform: translateY(14px) scale(0.99);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      header {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 12px;
+        margin-bottom: 16px;
+        flex-wrap: wrap;
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        letter-spacing: -0.02em;
+      }
+
+      .sub {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+
+      @media (min-width: 720px) {
+        .grid {
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+      }
+
+      .field {
+        width: 100%;
+      }
+
+      input {
+        width: 100%;
+        border-radius: 12px;
+        padding: 12px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.18);
+        background: rgba(255, 255, 255, 0.1);
+        color: var(--text);
+        outline: none;
+        transition: box-shadow 160ms ease, border-color 160ms ease, transform 160ms ease;
+      }
+
+      input::placeholder {
+        color: rgba(255, 255, 255, 0.55);
+      }
+
+      input:focus {
+        border-color: rgba(124, 58, 237, 0.8);
+        box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.22);
+        transform: translateY(-1px);
+      }
+
+      .api-row {
+        margin-top: 12px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 8px;
+        color: var(--muted);
+        font-size: 14px;
+      }
+
+      .btn {
+        width: 100%;
+        margin-top: 14px;
+        border: 0;
+        border-radius: 14px;
+        padding: 13px 16px;
+        font-weight: 700;
+        color: rgba(255, 255, 255, 0.95);
+        background: linear-gradient(135deg, var(--accent1), #2563eb);
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 14px 40px rgba(79, 70, 229, 0.25);
+        transition: transform 150ms ease, filter 150ms ease;
+      }
+
+      .btn::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(120deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+        transform: translateX(-130%);
+        transition: transform 380ms ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.05);
+      }
+
+      .btn:hover::before {
+        transform: translateX(130%);
+      }
+
+      .btn:disabled {
+        cursor: not-allowed;
+        opacity: 0.75;
+        transform: none;
+        filter: none;
+      }
+
+      .btn-inner {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .spinner {
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        border: 2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: rgba(255, 255, 255, 0.95);
+        animation: spin 0.85s linear infinite;
+        opacity: 0;
+        transition: opacity 160ms ease;
+      }
+
+      .btn.is-loading .spinner {
+        opacity: 1;
+      }
+
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      .result {
+        margin-top: 16px;
+        padding: 16px;
+        min-height: 92px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: none;
+        white-space: pre-wrap;
+        line-height: 1.35;
+        color: rgba(255, 255, 255, 0.92);
+        opacity: 0.96;
+      }
+
+      .result.is-show {
+        animation: resultIn 220ms ease-out both;
+      }
+
+      @keyframes resultIn {
+        from {
+          transform: translateY(8px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 0.96;
+        }
+      }
+
+      .result.is-error {
+        border-color: rgba(251, 113, 133, 0.6);
+        box-shadow: 0 0 0 4px rgba(251, 113, 133, 0.12);
+      }
+
+      .result-title {
+        font-size: 18px;
+        font-weight: 850;
+        margin: 0 0 8px;
+        letter-spacing: -0.01em;
+      }
+
+      .result-desc {
+        margin: 0 0 12px;
+        color: rgba(255, 255, 255, 0.74);
+        font-size: 14px;
+        white-space: pre-wrap;
+      }
+
+      .recipe-subtitle {
+        margin: 12px 0 8px;
+        font-weight: 850;
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.72);
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .recipe-steps {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .recipe-steps li {
+        margin: 10px 0;
+        color: rgba(255, 255, 255, 0.92);
+      }
+
+      .hint {
+        margin-top: 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+    </style>
+
+    <div class="bg-blobs">
+      <div class="blob one"></div>
+      <div class="blob two"></div>
+      <div class="blob three"></div>
+    </div>
+
+    <main class="wrap">
+      <section class="card">
+        <header>
+          <div>
+            <h1>Fridge Hero</h1>
+            <p class="sub">Turn 3 ingredients into a fancy dish + a simple recipe.</p>
+          </div>
+        </header>
+
+        <div class="grid">
+          <div class="field">
+            <input id="ing1" placeholder="Ingredient 1" />
+          </div>
+          <div class="field">
+            <input id="ing2" placeholder="Ingredient 2" />
+          </div>
+          <div class="field">
+            <input id="ing3" placeholder="Ingredient 3" />
+          </div>
+        </div>
+
+        <div class="api-row">
+          <label for="groqKey">Groq API key</label>
+          <input id="groqKey" type="password" placeholder="Paste your Groq key" />
+        </div>
+
+        <button id="generateBtn" type="button" class="btn">
+          <span class="btn-inner">
+            <span class="btn-label">Generate Dish</span>
+            <span class="spinner" aria-hidden="true"></span>
+          </span>
+        </button>
+
+        <div id="result" class="result" role="status" aria-live="polite"></div>
+        <div class="hint">Note: Never hardcode API keys in production apps.</div>
+      </section>
+    </main>
+
+    <script>
+      async function generateDishFromInputs() {
+        const ing1 = document.getElementById("ing1").value.trim();
+        const ing2 = document.getElementById("ing2").value.trim();
+        const ing3 = document.getElementById("ing3").value.trim();
+        const groqKey = document.getElementById("groqKey").value.trim();
+
+        const resultEl = document.getElementById("result");
+        const btn = document.getElementById("generateBtn");
+        const labelEl = btn.querySelector(".btn-label");
+        const spinnerEl = btn.querySelector(".spinner");
+        const originalLabel = labelEl ? labelEl.textContent : btn.textContent;
+
+        const setLoading = (isLoading) => {
+          btn.disabled = isLoading;
+          btn.classList.toggle("is-loading", isLoading);
+          if (labelEl) labelEl.textContent = isLoading ? "Loading..." : originalLabel;
+          if (spinnerEl) spinnerEl.setAttribute("aria-hidden", String(!isLoading));
+        };
+
+        const showMessage = (text, isError) => {
+          resultEl.textContent = String(text || "");
+          resultEl.classList.remove("is-error");
+          resultEl.classList.remove("is-show");
+          void resultEl.offsetWidth; // restart animation
+          if (isError) resultEl.classList.add("is-error");
+          resultEl.classList.add("is-show");
+        };
+
+        // Remove common markdown symbols like **...** so they don't show up as plain text.
+        const stripMarkdown = (s) => {
+          return String(s || "")
+            .replace(/\r\n/g, "\n")
+            .replace(/```/g, "")
+            .replace(/`/g, "")
+            .replace(/\*\*/g, "")
+            .replace(/\*/g, "")
+            .replace(/_/g, "")
+            .replace(/#+\s+/g, "")
+            .trim();
+        };
+
+        const renderDish = (rawText) => {
+          const cleaned = stripMarkdown(rawText);
+          if (!cleaned) {
+            showMessage("No text returned. Try again.", false);
+            return;
+          }
+
+          const recipeHeaderRe = /3\s*-?\s*step\s*recipe\s*:?/i;
+          const recipeIdx = cleaned.search(recipeHeaderRe);
+
+          const beforeRecipe =
+            recipeIdx === -1 ? cleaned : cleaned.slice(0, recipeIdx).trim();
+          const afterRecipe = recipeIdx === -1 ? "" : cleaned.slice(recipeIdx).trim();
+
+          const beforeLines = beforeRecipe
+            .split("\n")
+            .map((l) => l.trim())
+            .filter(Boolean);
+
+          const title = beforeLines[0] || "Dish";
+          const desc = beforeLines.slice(1).join(" ").trim();
+
+          let stepsPart = afterRecipe.replace(recipeHeaderRe, "").trim();
+          const stepRe =
+            /(?:^|\n)\s*([1-3])\.\s*(.*?)(?=(?:\n\s*[1-3]\.\s*)|$)/gs;
+          const matches = [...stepsPart.matchAll(stepRe)];
+          const steps = matches
+            .map((m) => String(m[2] || "").trim().replace(/\s+/g, " "))
+            .filter(Boolean);
+
+          // Render with DOM nodes (no HTML parsing; avoids markdown artifacts and XSS).
+          resultEl.classList.remove("is-error");
+          resultEl.classList.remove("is-show");
+          resultEl.innerHTML = "";
+          void resultEl.offsetWidth; // restart animation
+          resultEl.classList.add("is-show");
+
+          const titleEl = document.createElement("div");
+          titleEl.className = "result-title";
+          titleEl.textContent = title;
+          resultEl.appendChild(titleEl);
+
+          if (desc) {
+            const descEl = document.createElement("div");
+            descEl.className = "result-desc";
+            descEl.textContent = desc;
+            resultEl.appendChild(descEl);
+          }
+
+          if (steps.length) {
+            const subtitleEl = document.createElement("div");
+            subtitleEl.className = "recipe-subtitle";
+            subtitleEl.textContent = "3-Step Recipe";
+            resultEl.appendChild(subtitleEl);
+
+            const ol = document.createElement("ol");
+            ol.className = "recipe-steps";
+            steps.forEach((step, idx) => {
+              const li = document.createElement("li");
+              // Keep numbers out (we already show an ordered list).
+              li.textContent = step;
+              ol.appendChild(li);
+            });
+            resultEl.appendChild(ol);
+          } else {
+            // Fallback: show cleaned text if parsing fails.
+            const fallbackEl = document.createElement("div");
+            fallbackEl.textContent = cleaned;
+            resultEl.appendChild(fallbackEl);
+          }
+        };
+
+        if (!ing1 || !ing2 || !ing3) {
+          showMessage("Please enter all 3 ingredients.", true);
+          return;
+        }
+
+        if (!groqKey) {
+          showMessage("Please enter your Groq API key.", true);
+          return;
+        }
+
+        // Short + forces a simple plain-text structure (less markdown artifacts).
+        const prompt = `Ingredients: ${ing1}, ${ing2}, ${ing3}. Return plain text: Title, then 1., 2., 3. (3-step recipe).`;
+        const endpoint = "https://api.groq.com/openai/v1/chat/completions";
+
+        setLoading(true);
+        resultEl.textContent = "";
+        resultEl.classList.remove("is-error");
+
+        try {
+          const res = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: "Bearer " + groqKey,
+            },
+            body: JSON.stringify({
+              model: "llama-3.1-8b-instant",
+              messages: [{ role: "user", content: prompt }],
+              temperature: 0.7,
+              max_tokens: 180,
+            }),
+          });
+
+          if (!res.ok) {
+            if (res.status === 429) {
+              showMessage("API limit reached, please try later", true);
+              return;
+            }
+
+            if (res.status === 401) {
+              showMessage("Invalid API key. Check the Groq key and try again.", true);
+              return;
+            }
+
+            const errorText = await res.text();
+            throw new Error(`Request failed (${res.status}): ${errorText}`);
+          }
+
+          const data = await res.json();
+          const text = data?.choices?.[0]?.message?.content || "No text returned. Try again.";
+          renderDish(text);
+        } catch (err) {
+          showMessage("Error: " + (err?.message || String(err)), true);
+        } finally {
+          setLoading(false);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        document
+          .getElementById("generateBtn")
+          .addEventListener("click", generateDishFromInputs);
+      });
+    </script>
+  </body>
+</html>
