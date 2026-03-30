@@ -25,8 +25,3 @@ Note
 
 The API key is entered manually by the user and is not stored anywhere, ensuring basic security.
 
-Future Improvements
-
-Add image generation for dishes
-Enable saving and sharing recipes
-Develop a mobile-friendly or app version
